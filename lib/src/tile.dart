@@ -118,16 +118,19 @@ class TimelineTile extends StatefulWidget {
 }
 
 class _TimelineTileState extends State<TimelineTile>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationcontroller;
-  late Animation<Color?> _beforeAnimation;
-  late Animation<Color?> _afterAnimation;
+    with TickerProviderStateMixin {
+  AnimationController? _beforeAnimationController;
+  AnimationController? _afterAnimationController;
+  Animation<Color?>? _beforeAnimation;
+  Animation<Color?>? _afterAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize before line animation if enabled
     if (widget.enableBeforeLineAnimation) {
-      _animationcontroller = AnimationController(
+      _beforeAnimationController = AnimationController(
         duration: widget.animationDuration,
         vsync: this,
       );
@@ -135,11 +138,13 @@ class _TimelineTileState extends State<TimelineTile>
       _beforeAnimation = ColorTween(
         begin: widget.tweenBeginColor ?? Colors.transparent,
         end: widget.tweenEndColor ?? widget.beforeLineStyle.color,
-      ).animate(_animationcontroller);
-      _animationcontroller.repeat();
+      ).animate(_beforeAnimationController!);
+      _beforeAnimationController!.repeat();
     }
+
+    // Initialize after line animation if enabled
     if (widget.enableAfterLineAnimation) {
-      _animationcontroller = AnimationController(
+      _afterAnimationController = AnimationController(
         duration: widget.animationDuration,
         vsync: this,
       );
@@ -147,18 +152,19 @@ class _TimelineTileState extends State<TimelineTile>
       _afterAnimation = ColorTween(
         begin: widget.tweenBeginColor ?? Colors.transparent,
         end: widget.tweenEndColor ?? widget.afterLineStyle.color,
-      ).animate(_animationcontroller);
-      _animationcontroller.repeat();
+      ).animate(_afterAnimationController!);
+      _afterAnimationController!.repeat();
     }
   }
 
   @override
   void dispose() {
+    // Dispose the animation controllers properly
     if (widget.enableBeforeLineAnimation) {
-      _animationcontroller.dispose();
+      _beforeAnimationController?.dispose();
     }
     if (widget.enableAfterLineAnimation) {
-      _animationcontroller.dispose();
+      _afterAnimationController?.dispose();
     }
     super.dispose();
   }
@@ -167,7 +173,8 @@ class _TimelineTileState extends State<TimelineTile>
   Widget build(BuildContext context) {
     return widget.enableBeforeLineAnimation || widget.enableAfterLineAnimation
         ? AnimatedBuilder(
-            animation: _animationcontroller,
+            animation: Listenable.merge(
+                [_beforeAnimationController, _afterAnimationController]),
             builder: (context, child) {
               return LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
@@ -195,12 +202,12 @@ class _TimelineTileState extends State<TimelineTile>
                       axis: widget.axis,
                       beforeLineStyle: widget.enableBeforeLineAnimation
                           ? LineStyle(
-                              color: _beforeAnimation.value ?? Colors.grey,
+                              color: _beforeAnimation?.value ?? Colors.grey,
                             )
                           : widget.beforeLineStyle,
                       afterLineStyle: widget.enableAfterLineAnimation
                           ? LineStyle(
-                              color: _afterAnimation.value ?? Colors.grey,
+                              color: _afterAnimation?.value ?? Colors.grey,
                             )
                           : widget.beforeLineStyle,
                       indicatorStyle: widget.indicatorStyle,
