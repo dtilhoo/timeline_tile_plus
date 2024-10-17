@@ -43,6 +43,8 @@ class ShowcaseTimelineTile extends StatelessWidget {
                       return TimelineTile(
                         alignment: TimelineAlign.manual,
                         lineXY: 0.1,
+                        enableAfterLineAnimation: index == 7 ? true : false,
+                        enableBeforeLineAnimation: index == 8 ? true : false,
                         isFirst: index == 0,
                         isLast: index == examples.length - 1,
                         indicatorStyle: IndicatorStyle(

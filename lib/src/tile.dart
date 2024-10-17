@@ -35,7 +35,8 @@ enum TimelineAlign {
 }
 
 /// A tile that renders a timeline format.
-class TimelineTile extends StatelessWidget {
+/// A tile that renders a timeline format.
+class TimelineTile extends StatefulWidget {
   const TimelineTile({
     super.key,
     this.axis = TimelineAxis.vertical,
@@ -48,17 +49,13 @@ class TimelineTile extends StatelessWidget {
     this.isLast = false,
     this.indicatorStyle = const IndicatorStyle(width: 25),
     this.beforeLineStyle = const LineStyle(),
+    this.enableBeforeLineAnimation = false,
+    this.enableAfterLineAnimation = false,
+    this.tweenBeginColor,
+    this.tweenEndColor,
+    this.animationDuration = const Duration(milliseconds: 2000),
     LineStyle? afterLineStyle,
-  })  : afterLineStyle = afterLineStyle ?? beforeLineStyle,
-        assert(alignment != TimelineAlign.start || startChild == null,
-            'Cannot provide startChild with automatic alignment to the left'),
-        assert(alignment != TimelineAlign.end || endChild == null,
-            'Cannot provide endChild with automatic alignment to the right'),
-        assert(
-            alignment != TimelineAlign.manual ||
-                (lineXY != null && lineXY >= 0.0 && lineXY <= 1.0),
-            'The lineX must be provided when aligning manually, '
-            'and must be a value between 0.0 and 1.0 inclusive');
+  }) : afterLineStyle = afterLineStyle ?? beforeLineStyle;
 
   /// The axis used on the tile. See [TimelineAxis].
   /// It defaults to [TimelineAxis.vertical]
@@ -101,124 +98,327 @@ class TimelineTile extends StatelessWidget {
   /// If null, it defaults to [beforeLineStyle].
   final LineStyle afterLineStyle;
 
+  /// Whether to enable animation (default is false).
+  final bool enableBeforeLineAnimation;
+
+  /// Whether to enable animation (default is false).
+  final bool enableAfterLineAnimation;
+
+  /// Define the tween begin color
+  final Color? tweenBeginColor;
+
+  /// Define the tween end color
+  final Color? tweenEndColor;
+
+  /// Define the animation duration. Default is 2000ms.
+  final Duration? animationDuration;
+
+  @override
+  _TimelineTileState createState() => _TimelineTileState();
+}
+
+class _TimelineTileState extends State<TimelineTile>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationcontroller;
+  late Animation<Color?> _beforeAnimation;
+  late Animation<Color?> _afterAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enableBeforeLineAnimation) {
+      _animationcontroller = AnimationController(
+        duration: widget.animationDuration,
+        vsync: this,
+      );
+
+      _beforeAnimation = ColorTween(
+        begin: widget.tweenBeginColor ?? Colors.transparent,
+        end: widget.tweenEndColor ?? widget.beforeLineStyle.color,
+      ).animate(_animationcontroller);
+      _animationcontroller.repeat();
+    }
+    if (widget.enableAfterLineAnimation) {
+      _animationcontroller = AnimationController(
+        duration: widget.animationDuration,
+        vsync: this,
+      );
+
+      _afterAnimation = ColorTween(
+        begin: widget.tweenBeginColor ?? Colors.transparent,
+        end: widget.tweenEndColor ?? widget.afterLineStyle.color,
+      ).animate(_animationcontroller);
+      _animationcontroller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.enableBeforeLineAnimation) {
+      _animationcontroller.dispose();
+    }
+    if (widget.enableAfterLineAnimation) {
+      _animationcontroller.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        double startCrossAxisSpace = 0;
-        double endCrossAxisSpace = 0;
-        if (axis == TimelineAxis.vertical) {
-          startCrossAxisSpace = indicatorStyle.padding.left;
-          endCrossAxisSpace = indicatorStyle.padding.right;
-        } else {
-          startCrossAxisSpace = indicatorStyle.padding.top;
-          endCrossAxisSpace = indicatorStyle.padding.bottom;
-        }
+    return widget.enableBeforeLineAnimation || widget.enableAfterLineAnimation
+        ? AnimatedBuilder(
+            animation: _animationcontroller,
+            builder: (context, child) {
+              return LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  double startCrossAxisSpace = 0;
+                  double endCrossAxisSpace = 0;
+                  if (widget.axis == TimelineAxis.vertical) {
+                    startCrossAxisSpace = widget.indicatorStyle.padding.left;
+                    endCrossAxisSpace = widget.indicatorStyle.padding.right;
+                  } else {
+                    startCrossAxisSpace = widget.indicatorStyle.padding.top;
+                    endCrossAxisSpace = widget.indicatorStyle.padding.bottom;
+                  }
 
-        final children = <Widget>[
-          if (startCrossAxisSpace > 0)
-            SizedBox(
-              height:
-                  axis == TimelineAxis.vertical ? null : startCrossAxisSpace,
-              width: axis == TimelineAxis.vertical ? startCrossAxisSpace : null,
-            ),
-          _Indicator(
-            axis: axis,
-            beforeLineStyle: beforeLineStyle,
-            afterLineStyle: afterLineStyle,
-            indicatorStyle: indicatorStyle,
-            hasIndicator: hasIndicator,
-            isLast: isLast,
-            isFirst: isFirst,
-          ),
-          if (endCrossAxisSpace > 0)
-            SizedBox(
-              height: axis == TimelineAxis.vertical ? null : endCrossAxisSpace,
-              width: axis == TimelineAxis.vertical ? endCrossAxisSpace : null,
-            ),
-        ];
+                  final children = <Widget>[
+                    if (startCrossAxisSpace > 0)
+                      SizedBox(
+                        height: widget.axis == TimelineAxis.vertical
+                            ? null
+                            : startCrossAxisSpace,
+                        width: widget.axis == TimelineAxis.vertical
+                            ? startCrossAxisSpace
+                            : null,
+                      ),
+                    _Indicator(
+                      axis: widget.axis,
+                      beforeLineStyle: widget.enableBeforeLineAnimation
+                          ? LineStyle(
+                              color: _beforeAnimation.value ?? Colors.grey,
+                            )
+                          : widget.beforeLineStyle,
+                      afterLineStyle: widget.enableAfterLineAnimation
+                          ? LineStyle(
+                              color: _afterAnimation.value ?? Colors.grey,
+                            )
+                          : widget.beforeLineStyle,
+                      indicatorStyle: widget.indicatorStyle,
+                      hasIndicator: widget.hasIndicator,
+                      isLast: widget.isLast,
+                      isFirst: widget.isFirst,
+                    ),
+                    if (endCrossAxisSpace > 0)
+                      SizedBox(
+                        height: widget.axis == TimelineAxis.vertical
+                            ? null
+                            : endCrossAxisSpace,
+                        width: widget.axis == TimelineAxis.vertical
+                            ? endCrossAxisSpace
+                            : null,
+                      ),
+                  ];
 
-        final defaultChild = axis == TimelineAxis.vertical
-            ? Container(height: 100)
-            : Container(width: 100);
-        if (alignment == TimelineAlign.start) {
-          children.add(Expanded(child: endChild ?? defaultChild));
-        } else if (alignment == TimelineAlign.end) {
-          children.insert(0, Expanded(child: startChild ?? defaultChild));
-        } else {
-          final indicatorAxisXY =
-              alignment == TimelineAlign.center ? 0.5 : lineXY!;
-          final indicatorTotalSize = _indicatorTotalSize();
+                  final defaultChild = widget.axis == TimelineAxis.vertical
+                      ? Container(height: 100)
+                      : Container(width: 100);
 
-          final positioning = calculateAxisPositioning(
-            totalSize: axis == TimelineAxis.vertical
-                ? constraints.maxWidth
-                : constraints.maxHeight,
-            objectSize: indicatorTotalSize,
-            axisPosition: indicatorAxisXY,
-          );
+                  if (widget.alignment == TimelineAlign.start) {
+                    children
+                        .add(Expanded(child: widget.endChild ?? defaultChild));
+                  } else if (widget.alignment == TimelineAlign.end) {
+                    children.insert(
+                        0, Expanded(child: widget.startChild ?? defaultChild));
+                  } else {
+                    final indicatorAxisXY =
+                        widget.alignment == TimelineAlign.center
+                            ? 0.5
+                            : widget.lineXY!;
+                    final indicatorTotalSize = _indicatorTotalSize();
 
-          if (positioning.firstSpace.size > 0) {
-            children.insert(
-              0,
-              SizedBox(
-                height: axis == TimelineAxis.horizontal
-                    ? positioning.firstSpace.size
-                    : null,
-                width: axis == TimelineAxis.vertical
-                    ? positioning.firstSpace.size
-                    : null,
-                child: startChild ?? defaultChild,
-              ),
-            );
-          }
+                    final positioning = calculateAxisPositioning(
+                      totalSize: widget.axis == TimelineAxis.vertical
+                          ? constraints.maxWidth
+                          : constraints.maxHeight,
+                      objectSize: indicatorTotalSize,
+                      axisPosition: indicatorAxisXY,
+                    );
 
-          if (positioning.secondSpace.size > 0) {
-            children.add(
-              SizedBox(
-                height: axis == TimelineAxis.horizontal
-                    ? positioning.secondSpace.size
-                    : null,
-                width: axis == TimelineAxis.vertical
-                    ? positioning.secondSpace.size
-                    : null,
-                child: endChild ?? defaultChild,
-              ),
-            );
-          }
-        }
+                    if (positioning.firstSpace.size > 0) {
+                      children.insert(
+                        0,
+                        SizedBox(
+                          height: widget.axis == TimelineAxis.horizontal
+                              ? positioning.firstSpace.size
+                              : null,
+                          width: widget.axis == TimelineAxis.vertical
+                              ? positioning.firstSpace.size
+                              : null,
+                          child: widget.startChild ?? defaultChild,
+                        ),
+                      );
+                    }
 
-        return axis == TimelineAxis.vertical
-            ? IntrinsicHeight(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: children,
-                ),
-              )
-            : IntrinsicWidth(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: children,
-                ),
+                    if (positioning.secondSpace.size > 0) {
+                      children.add(
+                        SizedBox(
+                          height: widget.axis == TimelineAxis.horizontal
+                              ? positioning.secondSpace.size
+                              : null,
+                          width: widget.axis == TimelineAxis.vertical
+                              ? positioning.secondSpace.size
+                              : null,
+                          child: widget.endChild ?? defaultChild,
+                        ),
+                      );
+                    }
+                  }
+
+                  return widget.axis == TimelineAxis.vertical
+                      ? IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: children,
+                          ),
+                        )
+                      : IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: children,
+                          ),
+                        );
+                },
               );
-      },
-    );
+            },
+          )
+        : LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              double startCrossAxisSpace = 0;
+              double endCrossAxisSpace = 0;
+              if (widget.axis == TimelineAxis.vertical) {
+                startCrossAxisSpace = widget.indicatorStyle.padding.left;
+                endCrossAxisSpace = widget.indicatorStyle.padding.right;
+              } else {
+                startCrossAxisSpace = widget.indicatorStyle.padding.top;
+                endCrossAxisSpace = widget.indicatorStyle.padding.bottom;
+              }
+
+              final children = <Widget>[
+                if (startCrossAxisSpace > 0)
+                  SizedBox(
+                    height: widget.axis == TimelineAxis.vertical
+                        ? null
+                        : startCrossAxisSpace,
+                    width: widget.axis == TimelineAxis.vertical
+                        ? startCrossAxisSpace
+                        : null,
+                  ),
+                _Indicator(
+                  axis: widget.axis,
+                  beforeLineStyle: widget.beforeLineStyle,
+                  afterLineStyle: widget.afterLineStyle,
+                  indicatorStyle: widget.indicatorStyle,
+                  hasIndicator: widget.hasIndicator,
+                  isLast: widget.isLast,
+                  isFirst: widget.isFirst,
+                ),
+                if (endCrossAxisSpace > 0)
+                  SizedBox(
+                    height: widget.axis == TimelineAxis.vertical
+                        ? null
+                        : endCrossAxisSpace,
+                    width: widget.axis == TimelineAxis.vertical
+                        ? endCrossAxisSpace
+                        : null,
+                  ),
+              ];
+
+              final defaultChild = widget.axis == TimelineAxis.vertical
+                  ? Container(height: 100)
+                  : Container(width: 100);
+
+              if (widget.alignment == TimelineAlign.start) {
+                children.add(Expanded(child: widget.endChild ?? defaultChild));
+              } else if (widget.alignment == TimelineAlign.end) {
+                children.insert(
+                    0, Expanded(child: widget.startChild ?? defaultChild));
+              } else {
+                final indicatorAxisXY = widget.alignment == TimelineAlign.center
+                    ? 0.5
+                    : widget.lineXY!;
+                final indicatorTotalSize = _indicatorTotalSize();
+
+                final positioning = calculateAxisPositioning(
+                  totalSize: widget.axis == TimelineAxis.vertical
+                      ? constraints.maxWidth
+                      : constraints.maxHeight,
+                  objectSize: indicatorTotalSize,
+                  axisPosition: indicatorAxisXY,
+                );
+
+                if (positioning.firstSpace.size > 0) {
+                  children.insert(
+                    0,
+                    SizedBox(
+                      height: widget.axis == TimelineAxis.horizontal
+                          ? positioning.firstSpace.size
+                          : null,
+                      width: widget.axis == TimelineAxis.vertical
+                          ? positioning.firstSpace.size
+                          : null,
+                      child: widget.startChild ?? defaultChild,
+                    ),
+                  );
+                }
+
+                if (positioning.secondSpace.size > 0) {
+                  children.add(
+                    SizedBox(
+                      height: widget.axis == TimelineAxis.horizontal
+                          ? positioning.secondSpace.size
+                          : null,
+                      width: widget.axis == TimelineAxis.vertical
+                          ? positioning.secondSpace.size
+                          : null,
+                      child: widget.endChild ?? defaultChild,
+                    ),
+                  );
+                }
+              }
+
+              return widget.axis == TimelineAxis.vertical
+                  ? IntrinsicHeight(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: children,
+                      ),
+                    )
+                  : IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: children,
+                      ),
+                    );
+            },
+          );
   }
 
   double _indicatorTotalSize() {
-    if (axis == TimelineAxis.vertical) {
-      return indicatorStyle.padding.left +
-          indicatorStyle.padding.right +
-          (hasIndicator
-              ? indicatorStyle.width
-              : max(beforeLineStyle.thickness, afterLineStyle.thickness));
+    if (widget.axis == TimelineAxis.vertical) {
+      return widget.indicatorStyle.padding.left +
+          widget.indicatorStyle.padding.right +
+          (widget.hasIndicator
+              ? widget.indicatorStyle.width
+              : max(widget.beforeLineStyle.thickness,
+                  widget.afterLineStyle.thickness));
     }
 
-    return indicatorStyle.padding.top +
-        indicatorStyle.padding.bottom +
-        (hasIndicator
-            ? indicatorStyle.height
-            : max(beforeLineStyle.thickness, afterLineStyle.thickness));
+    return widget.indicatorStyle.padding.top +
+        widget.indicatorStyle.padding.bottom +
+        (widget.hasIndicator
+            ? widget.indicatorStyle.height
+            : max(widget.beforeLineStyle.thickness,
+                widget.afterLineStyle.thickness));
   }
 }
 
