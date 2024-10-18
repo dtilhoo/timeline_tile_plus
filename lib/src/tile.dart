@@ -54,6 +54,7 @@ class TimelineTile extends StatefulWidget {
     this.tweenBeginColor,
     this.tweenEndColor,
     this.animationDuration = const Duration(milliseconds: 2000),
+    this.animationLineThickness,
     LineStyle? afterLineStyle,
   }) : afterLineStyle = afterLineStyle ?? beforeLineStyle;
 
@@ -112,6 +113,9 @@ class TimelineTile extends StatefulWidget {
 
   /// Define the animation duration. Default is 2000ms.
   final Duration? animationDuration;
+
+  ///Define the thickness of the animation line
+  final double? animationLineThickness;
 
   @override
   _TimelineTileState createState() => _TimelineTileState();
@@ -203,12 +207,12 @@ class _TimelineTileState extends State<TimelineTile>
                       beforeLineStyle: widget.enableBeforeLineAnimation
                           ? LineStyle(
                               color: _beforeAnimation?.value ?? Colors.grey,
-                            )
+                              thickness: widget.animationLineThickness ?? 4)
                           : widget.beforeLineStyle,
                       afterLineStyle: widget.enableAfterLineAnimation
                           ? LineStyle(
                               color: _afterAnimation?.value ?? Colors.grey,
-                            )
+                              thickness: widget.animationLineThickness ?? 4)
                           : widget.beforeLineStyle,
                       indicatorStyle: widget.indicatorStyle,
                       hasIndicator: widget.hasIndicator,
