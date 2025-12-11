@@ -1,6 +1,7 @@
 ## 0.1.0
 
-Dashed and dotted line support added.
+- Dashed and dotted line support added.
+- Raised the minimum Flutter SDK version to 3.10.0
 
 ## 0.0.1
 
