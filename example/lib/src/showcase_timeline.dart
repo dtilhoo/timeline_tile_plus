@@ -98,7 +98,7 @@ class ShowcaseTimeline extends StatelessWidget {
 }
 
 class _Code extends StatelessWidget {
-  const _Code({Key? key, required this.code}) : super(key: key);
+  const _Code({required this.code});
 
   final String code;
 
@@ -125,7 +125,7 @@ class _Description extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(6)),
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -147,7 +147,7 @@ class _Description extends StatelessWidget {
               title: Text(
                 '</> SOURCE CODE',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 16,
                 ),
               ),
@@ -160,7 +160,7 @@ class _Description extends StatelessWidget {
                   style: ButtonStyle(
                     side: WidgetStateProperty.all(
                       BorderSide(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         width: 2,
                       ),
                     ),
@@ -168,7 +168,7 @@ class _Description extends StatelessWidget {
                   child: Text(
                     'FULL SCREEN',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
                     ),
                   ),

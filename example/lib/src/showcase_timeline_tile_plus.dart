@@ -54,7 +54,7 @@ class ShowcaseTimelineTile extends StatelessWidget {
                           drawGap: true,
                         ),
                         beforeLineStyle: LineStyle(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                         ),
                         endChild: GestureDetector(
                           child: _RowExample(example: example),
@@ -82,7 +82,7 @@ class ShowcaseTimelineTile extends StatelessWidget {
 }
 
 class _IndicatorExample extends StatelessWidget {
-  const _IndicatorExample({Key? key, required this.number}) : super(key: key);
+  const _IndicatorExample({required this.number});
 
   final String number;
 
@@ -93,7 +93,7 @@ class _IndicatorExample extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.fromBorderSide(
           BorderSide(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             width: 4,
           ),
         ),
@@ -109,7 +109,7 @@ class _IndicatorExample extends StatelessWidget {
 }
 
 class _RowExample extends StatelessWidget {
-  const _RowExample({Key? key, required this.example}) : super(key: key);
+  const _RowExample({required this.example});
 
   final Example example;
 

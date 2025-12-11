@@ -177,8 +177,10 @@ class _TimelineTileState extends State<TimelineTile>
   Widget build(BuildContext context) {
     return widget.enableBeforeLineAnimation || widget.enableAfterLineAnimation
         ? AnimatedBuilder(
-            animation: Listenable.merge(
-                [_beforeAnimationController, _afterAnimationController]),
+            animation: Listenable.merge([
+              _beforeAnimationController,
+              _afterAnimationController,
+            ]),
             builder: (context, child) {
               return LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
@@ -207,12 +209,14 @@ class _TimelineTileState extends State<TimelineTile>
                       beforeLineStyle: widget.enableBeforeLineAnimation
                           ? LineStyle(
                               color: _beforeAnimation?.value ?? Colors.grey,
-                              thickness: widget.animationLineThickness ?? 4)
+                              thickness: widget.animationLineThickness ?? 4,
+                            )
                           : widget.beforeLineStyle,
                       afterLineStyle: widget.enableAfterLineAnimation
                           ? LineStyle(
                               color: _afterAnimation?.value ?? Colors.grey,
-                              thickness: widget.animationLineThickness ?? 4)
+                              thickness: widget.animationLineThickness ?? 4,
+                            )
                           : widget.beforeLineStyle,
                       indicatorStyle: widget.indicatorStyle,
                       hasIndicator: widget.hasIndicator,
@@ -235,16 +239,19 @@ class _TimelineTileState extends State<TimelineTile>
                       : Container(width: 100);
 
                   if (widget.alignment == TimelineAlign.start) {
-                    children
-                        .add(Expanded(child: widget.endChild ?? defaultChild));
+                    children.add(
+                      Expanded(child: widget.endChild ?? defaultChild),
+                    );
                   } else if (widget.alignment == TimelineAlign.end) {
                     children.insert(
-                        0, Expanded(child: widget.startChild ?? defaultChild));
+                      0,
+                      Expanded(child: widget.startChild ?? defaultChild),
+                    );
                   } else {
                     final indicatorAxisXY =
                         widget.alignment == TimelineAlign.center
-                            ? 0.5
-                            : widget.lineXY!;
+                        ? 0.5
+                        : widget.lineXY!;
                     final indicatorTotalSize = _indicatorTotalSize();
 
                     final positioning = calculateAxisPositioning(
@@ -352,7 +359,9 @@ class _TimelineTileState extends State<TimelineTile>
                 children.add(Expanded(child: widget.endChild ?? defaultChild));
               } else if (widget.alignment == TimelineAlign.end) {
                 children.insert(
-                    0, Expanded(child: widget.startChild ?? defaultChild));
+                  0,
+                  Expanded(child: widget.startChild ?? defaultChild),
+                );
               } else {
                 final indicatorAxisXY = widget.alignment == TimelineAlign.center
                     ? 0.5
@@ -420,16 +429,20 @@ class _TimelineTileState extends State<TimelineTile>
           widget.indicatorStyle.padding.right +
           (widget.hasIndicator
               ? widget.indicatorStyle.width
-              : max(widget.beforeLineStyle.thickness,
-                  widget.afterLineStyle.thickness));
+              : max(
+                  widget.beforeLineStyle.thickness,
+                  widget.afterLineStyle.thickness,
+                ));
     }
 
     return widget.indicatorStyle.padding.top +
         widget.indicatorStyle.padding.bottom +
         (widget.hasIndicator
             ? widget.indicatorStyle.height
-            : max(widget.beforeLineStyle.thickness,
-                widget.afterLineStyle.thickness));
+            : max(
+                widget.beforeLineStyle.thickness,
+                widget.afterLineStyle.thickness,
+              ));
   }
 }
 
@@ -482,15 +495,13 @@ class _Indicator extends StatelessWidget {
       SizedBox(
         height: axis == TimelineAxis.vertical ? double.infinity : size,
         width: axis == TimelineAxis.vertical ? size : double.infinity,
-      )
+      ),
     ];
 
     final renderDefaultIndicator =
         hasIndicator && indicatorStyle.indicator == null;
     if (!renderDefaultIndicator) {
-      childrenStack.add(
-        _buildCustomIndicator(),
-      );
+      childrenStack.add(_buildCustomIndicator());
     }
 
     final painter = _TimelinePainter(
@@ -505,9 +516,7 @@ class _Indicator extends StatelessWidget {
 
     return CustomPaint(
       painter: painter,
-      child: Stack(
-        children: childrenStack,
-      ),
+      child: Stack(children: childrenStack),
     );
   }
 
@@ -573,38 +582,39 @@ class _TimelinePainter extends CustomPainter {
     this.isFirst = false,
     this.isLast = false,
     required IndicatorStyle indicatorStyle,
-    required LineStyle beforeLineStyle,
-    required LineStyle afterLineStyle,
-  })  : beforeLinePaint = Paint()
-          ..color = beforeLineStyle.color
-          ..strokeWidth = beforeLineStyle.thickness,
-        afterLinePaint = Paint()
-          ..color = afterLineStyle.color
-          ..strokeWidth = afterLineStyle.thickness,
-        indicatorPaint =
-            !paintIndicator ? null : (Paint()..color = indicatorStyle.color),
-        indicatorXY = indicatorStyle.indicatorXY,
-        indicatorSize = axis == TimelineAxis.vertical
-            ? (paintIndicator
-                ? indicatorStyle.width
-                : (indicatorStyle.indicator != null
-                    ? indicatorStyle.height
-                    : 0))
-            : (paintIndicator
-                ? indicatorStyle.height
-                : (indicatorStyle.indicator != null
-                    ? indicatorStyle.width
-                    : 0)),
-        indicatorStartGap = axis == TimelineAxis.vertical
-            ? indicatorStyle.padding.top
-            : indicatorStyle.padding.left,
-        indicatorEndGap = axis == TimelineAxis.vertical
-            ? indicatorStyle.padding.bottom
-            : indicatorStyle.padding.right,
-        drawGap = indicatorStyle.drawGap,
-        iconData = indicatorStyle.iconStyle?.iconData,
-        iconColor = indicatorStyle.iconStyle?.color,
-        iconSize = indicatorStyle.iconStyle?.fontSize;
+    required this.beforeLineStyle,
+    required this.afterLineStyle,
+  }) : beforeLinePaint = Paint()
+         ..color = beforeLineStyle.color
+         ..strokeWidth = beforeLineStyle.thickness,
+       afterLinePaint = Paint()
+         ..color = afterLineStyle.color
+         ..strokeWidth = afterLineStyle.thickness,
+       indicatorPaint = !paintIndicator
+           ? null
+           : (Paint()..color = indicatorStyle.color),
+       indicatorXY = indicatorStyle.indicatorXY,
+       indicatorSize = axis == TimelineAxis.vertical
+           ? (paintIndicator
+                 ? indicatorStyle.width
+                 : (indicatorStyle.indicator != null
+                       ? indicatorStyle.height
+                       : 0))
+           : (paintIndicator
+                 ? indicatorStyle.height
+                 : (indicatorStyle.indicator != null
+                       ? indicatorStyle.width
+                       : 0)),
+       indicatorStartGap = axis == TimelineAxis.vertical
+           ? indicatorStyle.padding.top
+           : indicatorStyle.padding.left,
+       indicatorEndGap = axis == TimelineAxis.vertical
+           ? indicatorStyle.padding.bottom
+           : indicatorStyle.padding.right,
+       drawGap = indicatorStyle.drawGap,
+       iconData = indicatorStyle.iconStyle?.iconData,
+       iconColor = indicatorStyle.iconStyle?.color,
+       iconSize = indicatorStyle.iconStyle?.fontSize;
 
   /// The axis used to render the line at the [TimelineAxis.vertical]
   /// or [TimelineAxis.horizontal].
@@ -612,44 +622,39 @@ class _TimelinePainter extends CustomPainter {
 
   /// Value from 0.0 to 1.0 indicating the percentage in which the indicator
   /// should be positioned on the line, either on Y if [TimelineAxis.vertical]
-  /// or X if [TimelineAxis.horizontal].
-  /// For example, 0.2 means 20% from start to end. It defaults to 0.5.
+  /// or X if [TimelineAxis.horizontal]. For example, 0.2 means 20%.
   final double indicatorXY;
 
-  /// A gap/space between the line and the indicator
+  /// Gaps between the line and the indicator
   final double indicatorStartGap;
-
-  /// A gap/space between the line and the indicator
   final double indicatorEndGap;
 
-  /// The size from the indicator. If it is the default indicator, the height
-  /// will be equal to the width (when axis vertical), or the width will be
-  /// equal to the height (when axis horizontal), which is the equivalent of the
-  /// diameter of the circumference.
+  /// The size from the indicator.
   final double indicatorSize;
 
-  /// Used to paint the top line
+  /// Used to paint the top/before line
   final Paint beforeLinePaint;
 
-  /// Used to paint the bottom line
+  /// Used to paint the bottom/after line
   final Paint afterLinePaint;
+
+  /// We keep the full style so we can read dotted/dashed config
+  final LineStyle beforeLineStyle;
+  final LineStyle afterLineStyle;
 
   /// Used to paint the indicator
   final Paint? indicatorPaint;
 
-  /// Whether it should paint a default indicator. It defaults to true.
+  /// Whether it should paint a default indicator.
   final bool paintIndicator;
 
-  /// Whether this paint should start the line somewhere in the middle,
-  /// according to [indicatorY]. It defaults to false.
+  /// Whether this paint should start the line somewhere in the middle.
   final bool isFirst;
 
-  /// Whether this paint should end the line somewhere in the middle,
-  /// according to [indicatorY]. It defaults to false.
+  /// Whether this paint should end the line somewhere in the middle.
   final bool isLast;
 
-  /// If there must be a gap between the lines. The gap size will always be the
-  /// [indicatorSize] + [indicatorStartGap] + [indicatorEndGap].
+  /// If there must be a gap between the lines.
   final bool drawGap;
 
   /// The icon rendered with the default indicator.
@@ -658,17 +663,19 @@ class _TimelinePainter extends CustomPainter {
   /// The icon color.
   final Color? iconColor;
 
-  /// The icon size. If not provided, the size will be adjusted according to [indicatorRadius].
+  /// The icon size.
   final double? iconSize;
 
   @override
   void paint(Canvas canvas, Size size) {
     final hasGap = indicatorStartGap > 0 || indicatorEndGap > 0 || drawGap;
 
-    final centerAxis =
-        axis == TimelineAxis.vertical ? size.width / 2 : size.height / 2;
+    final centerAxis = axis == TimelineAxis.vertical
+        ? size.width / 2
+        : size.height / 2;
     final indicatorTotalSize =
         indicatorSize + indicatorEndGap + indicatorStartGap;
+
     final position = calculateAxisPositioning(
       totalSize: axis == TimelineAxis.vertical ? size.height : size.width,
       objectSize: indicatorTotalSize,
@@ -695,39 +702,44 @@ class _TimelinePainter extends CustomPainter {
       final indicatorCenter = axis == TimelineAxis.vertical
           ? Offset(centerAxis, indicatorCenterPoint)
           : Offset(indicatorCenterPoint, centerAxis);
+
       canvas.drawCircle(indicatorCenter, indicatorRadius, indicatorPaint!);
 
       if (iconData != null) {
         var fontSize = iconSize;
         fontSize ??= (indicatorRadius * 2) - 10;
 
-        final builder = ui.ParagraphBuilder(ui.ParagraphStyle(
-          fontFamily: iconData!.fontFamily,
-        ));
-        builder.pushStyle(ui.TextStyle(
-          fontSize: fontSize,
-          color: iconColor,
-        ));
+        final builder = ui.ParagraphBuilder(
+          ui.ParagraphStyle(fontFamily: iconData!.fontFamily),
+        );
+        builder.pushStyle(ui.TextStyle(fontSize: fontSize, color: iconColor));
         builder.addText(String.fromCharCode(iconData!.codePoint));
 
         final paragraph = builder.build();
         paragraph.layout(const ui.ParagraphConstraints(width: 0.0));
 
         final halfIconSize = fontSize / 2;
-        final offsetIcon = Offset(indicatorCenter.dx - halfIconSize,
-            indicatorCenter.dy - halfIconSize);
+        final offsetIcon = Offset(
+          indicatorCenter.dx - halfIconSize,
+          indicatorCenter.dy - halfIconSize,
+        );
+
         canvas.drawParagraph(paragraph, offsetIcon);
       }
     }
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(covariant _TimelinePainter oldDelegate) {
+    // Simpler: always repaint – safer with animations + style changes
+    return true;
   }
 
   void _drawSingleLine(
-      Canvas canvas, double centerAxis, AxisPosition position) {
+    Canvas canvas,
+    double centerAxis,
+    AxisPosition position,
+  ) {
     if (!isFirst) {
       final beginTopLine = axis == TimelineAxis.vertical
           ? Offset(centerAxis, 0)
@@ -745,7 +757,28 @@ class _TimelinePainter extends CustomPainter {
                   : position.firstSpace.end,
               centerAxis,
             );
-      canvas.drawLine(beginTopLine, endTopLine, beforeLinePaint);
+
+      if (beforeLineStyle.dotted) {
+        _drawDottedLine(
+          canvas,
+          beginTopLine,
+          endTopLine,
+          beforeLinePaint,
+          beforeLineStyle.dotSpacing,
+          beforeLineStyle.dotRadius,
+        );
+      } else if (beforeLineStyle.isDashed) {
+        _drawDashedLine(
+          canvas,
+          beginTopLine,
+          endTopLine,
+          beforeLinePaint,
+          beforeLineStyle.dashLength,
+          beforeLineStyle.dashSpacing,
+        );
+      } else {
+        canvas.drawLine(beginTopLine, endTopLine, beforeLinePaint);
+      }
     }
 
     if (!isLast) {
@@ -765,12 +798,36 @@ class _TimelinePainter extends CustomPainter {
       final endBottomLine = axis == TimelineAxis.vertical
           ? Offset(centerAxis, position.secondSpace.end)
           : Offset(position.secondSpace.end, centerAxis);
-      canvas.drawLine(beginBottomLine, endBottomLine, afterLinePaint);
+
+      if (afterLineStyle.dotted) {
+        _drawDottedLine(
+          canvas,
+          beginBottomLine,
+          endBottomLine,
+          afterLinePaint,
+          afterLineStyle.dotSpacing,
+          afterLineStyle.dotRadius,
+        );
+      } else if (afterLineStyle.isDashed) {
+        _drawDashedLine(
+          canvas,
+          beginBottomLine,
+          endBottomLine,
+          afterLinePaint,
+          afterLineStyle.dashLength,
+          afterLineStyle.dashSpacing,
+        );
+      } else {
+        canvas.drawLine(beginBottomLine, endBottomLine, afterLinePaint);
+      }
     }
   }
 
   void _drawBeforeLine(
-      Canvas canvas, double centerAxis, AxisPosition position) {
+    Canvas canvas,
+    double centerAxis,
+    AxisPosition position,
+  ) {
     final beginTopLine = axis == TimelineAxis.vertical
         ? Offset(centerAxis, 0)
         : Offset(0, centerAxis);
@@ -778,11 +835,32 @@ class _TimelinePainter extends CustomPainter {
         ? Offset(centerAxis, position.firstSpace.end)
         : Offset(position.firstSpace.end, centerAxis);
 
-    final lineSize =
-        axis == TimelineAxis.vertical ? endTopLine.dy : endTopLine.dx;
-    // if the line size is less or equal than 0, the line shouldn't be rendered
+    final lineSize = axis == TimelineAxis.vertical
+        ? endTopLine.dy
+        : endTopLine.dx;
+
     if (lineSize > 0) {
-      canvas.drawLine(beginTopLine, endTopLine, beforeLinePaint);
+      if (beforeLineStyle.dotted) {
+        _drawDottedLine(
+          canvas,
+          beginTopLine,
+          endTopLine,
+          beforeLinePaint,
+          beforeLineStyle.dotSpacing,
+          beforeLineStyle.dotRadius,
+        );
+      } else if (beforeLineStyle.isDashed) {
+        _drawDashedLine(
+          canvas,
+          beginTopLine,
+          endTopLine,
+          beforeLinePaint,
+          beforeLineStyle.dashLength,
+          beforeLineStyle.dashSpacing,
+        );
+      } else {
+        canvas.drawLine(beginTopLine, endTopLine, beforeLinePaint);
+      }
     }
   }
 
@@ -797,9 +875,77 @@ class _TimelinePainter extends CustomPainter {
     final lineSize = axis == TimelineAxis.vertical
         ? endBottomLine.dy - beginBottomLine.dy
         : endBottomLine.dx - beginBottomLine.dx;
-    // if the line size is less or equal than 0, the line shouldn't be rendered
+
     if (lineSize > 0) {
-      canvas.drawLine(beginBottomLine, endBottomLine, afterLinePaint);
+      if (afterLineStyle.dotted) {
+        _drawDottedLine(
+          canvas,
+          beginBottomLine,
+          endBottomLine,
+          afterLinePaint,
+          afterLineStyle.dotSpacing,
+          afterLineStyle.dotRadius,
+        );
+      } else if (afterLineStyle.isDashed) {
+        _drawDashedLine(
+          canvas,
+          beginBottomLine,
+          endBottomLine,
+          afterLinePaint,
+          afterLineStyle.dashLength,
+          afterLineStyle.dashSpacing,
+        );
+      } else {
+        canvas.drawLine(beginBottomLine, endBottomLine, afterLinePaint);
+      }
+    }
+  }
+
+  void _drawDashedLine(
+    Canvas canvas,
+    Offset start,
+    Offset end,
+    Paint paint,
+    double dashLength,
+    double dashSpacing,
+  ) {
+    final double distance = (end - start).distance;
+    final double dx = (end.dx - start.dx) / distance;
+    final double dy = (end.dy - start.dy) / distance;
+
+    final double dashPatternLength = dashLength + dashSpacing;
+
+    for (double i = 0; i < distance; i += dashPatternLength) {
+      double currentDashEnd = i + dashLength;
+      if (currentDashEnd > distance) {
+        currentDashEnd = distance;
+      }
+
+      final double px1 = start.dx + (dx * i);
+      final double py1 = start.dy + (dy * i);
+      final double px2 = start.dx + (dx * currentDashEnd);
+      final double py2 = start.dy + (dy * currentDashEnd);
+
+      canvas.drawLine(Offset(px1, py1), Offset(px2, py2), paint);
+    }
+  }
+
+  void _drawDottedLine(
+    Canvas canvas,
+    Offset start,
+    Offset end,
+    Paint paint,
+    double spacing,
+    double radius,
+  ) {
+    final double distance = (end - start).distance;
+    final double dx = (end.dx - start.dx) / distance;
+    final double dy = (end.dy - start.dy) / distance;
+
+    for (double i = 0; i < distance; i += spacing) {
+      final double px = start.dx + (dx * i);
+      final double py = start.dy + (dy * i);
+      canvas.drawCircle(Offset(px, py), radius, paint);
     }
   }
 }

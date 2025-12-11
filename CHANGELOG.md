@@ -1,3 +1,7 @@
+## 0.1.0
+
+Dashed and dotted line support added.
+
 ## 0.0.1
 
 Line animation added.

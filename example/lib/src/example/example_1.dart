@@ -27,7 +27,7 @@ return Container(
 );
 
 class Example1Vertical extends StatelessWidget {
-  const Example1Vertical({Key? key}) : super(key: key);
+  const Example1Vertical({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class Example1Vertical extends StatelessWidget {
         <Widget>[
           Container(
             color: Colors.white,
-            child: TimelineTile(),
+            child: const TimelineTile(),
           ),
         ],
       ),
@@ -45,7 +45,7 @@ class Example1Vertical extends StatelessWidget {
 }
 
 class Example1Horizontal extends StatelessWidget {
-  const Example1Horizontal({Key? key}) : super(key: key);
+  const Example1Horizontal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class Example1Horizontal extends StatelessWidget {
               Container(
                 constraints: const BoxConstraints(maxHeight: 100),
                 color: Colors.white,
-                child: TimelineTile(
+                child: const TimelineTile(
                   axis: TimelineAxis.horizontal,
                   alignment: TimelineAlign.center,
                 ),

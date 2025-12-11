@@ -72,7 +72,7 @@ return Container(
 );
 
 class Example9Vertical extends StatelessWidget {
-  const Example9Vertical({Key? key}) : super(key: key);
+  const Example9Vertical({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -102,17 +102,17 @@ class Example9Vertical extends StatelessWidget {
                     color: Colors.amberAccent,
                   ),
                 ),
-                TimelineTile(
+                const TimelineTile(
                   alignment: TimelineAlign.center,
-                  beforeLineStyle: const LineStyle(
+                  beforeLineStyle: LineStyle(
                     color: Colors.purple,
                     thickness: 6,
                   ),
-                  afterLineStyle: const LineStyle(
+                  afterLineStyle: LineStyle(
                     color: Colors.deepOrange,
                     thickness: 6,
                   ),
-                  indicatorStyle: const IndicatorStyle(
+                  indicatorStyle: IndicatorStyle(
                     width: 20,
                     color: Colors.cyan,
                   ),
@@ -145,7 +145,7 @@ class Example9Vertical extends StatelessWidget {
 }
 
 class Example9Horizontal extends StatelessWidget {
-  const Example9Horizontal({Key? key}) : super(key: key);
+  const Example9Horizontal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -179,18 +179,18 @@ class Example9Horizontal extends StatelessWidget {
                       color: Colors.amberAccent,
                     ),
                   ),
-                  TimelineTile(
+                  const TimelineTile(
                     axis: TimelineAxis.horizontal,
                     alignment: TimelineAlign.center,
-                    beforeLineStyle: const LineStyle(
+                    beforeLineStyle: LineStyle(
                       color: Colors.purple,
                       thickness: 6,
                     ),
-                    afterLineStyle: const LineStyle(
+                    afterLineStyle: LineStyle(
                       color: Colors.deepOrange,
                       thickness: 6,
                     ),
-                    indicatorStyle: const IndicatorStyle(
+                    indicatorStyle: IndicatorStyle(
                       height: 20,
                       color: Colors.cyan,
                     ),
